@@ -56,7 +56,7 @@ def build_snipeIT_lookup():
     global snipeIT_lookup
     try:
         status_id = lookup_snipe_it_name(function='status_labels', name='Ready to Deploy')
-        model_id = lookup_snipe_it_name(function='models', name='AWS')
+        model_id = lookup_snipe_it_name(function='models', name='AWS EC2')
         snipeIT_lookup = {'status_id':status_id,
             'model_id': model_id }
         return True
