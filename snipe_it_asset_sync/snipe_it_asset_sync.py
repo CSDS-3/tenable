@@ -8,7 +8,9 @@ logging.basicConfig(level='INFO', format='%(asctime)s - %(levelname)s - %(messag
 
 def force_list_to_str(val):
     '''For some reason tenable will use lists for values that 
-    can only ever be a str'''    
+    can only ever be a str'''  
+    if not val:
+        return None  
     return val[0] if isinstance(val,list) else val
     
 def tio_assets():
@@ -28,6 +30,7 @@ def process_assets(assets):
         send_to_snipeIT(asset=formatted_asset)
 
 def send_to_snipeIT(asset):
+    logging.debug(f'Sending {asset=}')
     result = snipe.assets.update(asset)
     logging.debug(f'SnipeIT asset update {result=}')
 
@@ -46,7 +49,7 @@ def format_asset(asset):
             }
     except:
         logging.exception(f'Formatting error {asset=}')
-    logging.debug(f'Formatted {asset=} to {data=}')
+    # logging.debug(f'Formatted {asset=} to {data=}')
     return data
 
 def build_snipeIT_lookup():
