@@ -56,6 +56,7 @@ def build_snipeIT_lookup():
         model_id = lookup_snipe_it_name(function='models', name='AWS')
         snipeIT_lookup = {'status_id':status_id,
             'model_id': model_id }
+        return True
     except:
         logging.exception('Failed building lookup')
         return False
@@ -64,6 +65,7 @@ def main():
     logging.info('Starting snipe_it_asset_sync')
     successful_lookup = build_snipeIT_lookup()
     if not successful_lookup:
+        print
         return
     assets = tio_assets()
     process_assets(assets=assets)

@@ -42,6 +42,7 @@ def export_compliance(checkpoint):
     except:
         logging.exception('API Error')
         return False
+    return True
 
 def write_checkpoint(new_checkpoint):
     logging.info('Writing new checkpoint back')
