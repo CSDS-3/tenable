@@ -49,7 +49,7 @@ def format_asset(asset):
             'status_id': snipeIT_lookup['status_id'],
             'model_id': snipeIT_lookup['model_id'],
             'name' : name,
-            snipeIT_lookup['model_id'] : os
+            snipeIT_lookup['os_id'] : os
             }
         if snipe_asset_id:
             data['id'] = id
