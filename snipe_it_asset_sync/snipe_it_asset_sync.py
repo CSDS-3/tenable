@@ -52,7 +52,7 @@ def format_asset(asset):
             snipeIT_lookup['os_id'] : os
             }
         if snipe_asset_id:
-            data['id'] = id
+            data['id'] = snipe_asset_id
     except:
         logging.exception(f'Formatting error {asset=}')
     # logging.debug(f'Formatted {asset=} to {data=}')
@@ -60,24 +60,24 @@ def format_asset(asset):
 
 def is_known_asset(asset):
     ''' '''
-    ec2_id = asset.get('aws_ec2_instance_id')
+    ec2_id = force_list_to_str(asset.get('aws_ec2_instance_id'))    
+
     if not ec2_id:
         logging.warning(f'No EC2 on this Asset {asset=}')
         return False
     for asset in snipeIT_lookup['assets']:
-        if asset.get('asset_tag') == 'ec2_id':
+        if asset.get('asset_tag') == ec2_id:
             logging.info('Found existing Snipe_Asset')
             return asset['id']
     logging.info('New SnipeIT Asset')
     
 def build_snipeIT_lookup():
-
     global snipeIT_lookup
     try:
         status_id = lookup_snipe_it_name(function='status_labels', name='Ready to Deploy')['id']
         model_id = lookup_snipe_it_name(function='models', name='AWS EC2')['id']
         os_id = lookup_snipe_it_name(function='fields', name='OS')['db_column_name']
-        assets = [{k:v} for k,v in snipe.assets.list().items() if k in ['id','asset_tag']]
+        assets = [{k:v for k,v in i.items() if k in ['id','asset_tag']} for i in snipe.assets.list()]
         snipeIT_lookup = {'status_id':status_id,
             'model_id': model_id,
              'os_id': os_id,
