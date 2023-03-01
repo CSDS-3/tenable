@@ -48,7 +48,7 @@ def export_compliance(checkpoint):
 def write_checkpoint(new_checkpoint):
     logger.info('Writing new checkpoint back')
     logger.debug(f'{new_checkpoint=}')
-    CHECKPOINT.write_text(new_checkpoint)
+    CHECKPOINT.write_text(str(new_checkpoint))
 
 def main():
     logger.info('Begin Audit export')
