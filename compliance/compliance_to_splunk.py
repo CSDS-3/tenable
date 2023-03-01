@@ -4,9 +4,10 @@ import arrow
 from pathlib import Path
 import logging
 import json
+import logging_utils
 
 tio = TenableIO()
-logging.basicConfig(level='INFO', format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging_utils.get_logger(logger_name='tio_compliance', log_folder=".")
 
 # file that stores the how far to look for findings
 CHECKPOINT = Path('audit_checkpoint')
@@ -23,40 +24,40 @@ def arrowfy(func):
 
 @arrowfy
 def read_checkpoint(checkpoint=CHECKPOINT):
-    logging.info(f'Reading {checkpoint=}')
+    logger.info(f'Reading {checkpoint=}')
     if not checkpoint.exists():
         return 0
     return checkpoint.read_text()
 
 def write_chunk(data, export_uuid, export_type, export_chunk_id):
     fn = f'{export_type}-{export_uuid}-{export_chunk_id}.json'
-    logging.info(f'Writing Audit export to {fn=}')
+    logger.info(f'Writing Audit export to {fn=}')
     with open(fn,'w') as fobj:
         json.dump(data, fobj)
 
 def export_compliance(checkpoint):
-    logging.info(f'Pulling Audits since {checkpoint=}')
+    logger.info(f'Pulling Audits since {checkpoint=}')
     try:
         export = tio.exports.compliance(last_seen=checkpoint.int_timestamp, num_findings=NUM_FINDINGS)
         export.run_threaded(write_chunk, num_threads=THREADS)
     except:
-        logging.exception('API Error')
+        logger.exception('API Error')
         return False
     return True
 
 def write_checkpoint(new_checkpoint):
-    logging.info('Writing new checkpoint back')
-    logging.debug(f'{new_checkpoint=}')
+    logger.info('Writing new checkpoint back')
+    logger.debug(f'{new_checkpoint=}')
     CHECKPOINT.write_text(new_checkpoint)
 
 def main():
-    logging.info('Begin Audit export')
+    logger.info('Begin Audit export')
     checkpoint = read_checkpoint()
     new_checkpoint = arrow.utcnow()
     audit_export = export_compliance(checkpoint=checkpoint)
     if audit_export:
         write_checkpoint(new_checkpoint)
-    logging.info('Finished Audit export')
+    logger.info('Finished Audit export')
     
 
 if __name__ == "__main__":
