@@ -4,10 +4,12 @@ import arrow
 from pathlib import Path
 import logging
 import json
+import sys
+sys.path.append('../tools')
 import logging_utils
 
 tio = TenableIO()
-logger = logging_utils.get_logger(logger_name='tio_compliance', log_folder=".")
+logger = logging_utils.get_logger(logger_name='tio_compliance')
 
 # file that stores the how far to look for findings
 CHECKPOINT = Path('audit_checkpoint')
