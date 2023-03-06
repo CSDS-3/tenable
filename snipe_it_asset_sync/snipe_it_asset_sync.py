@@ -9,6 +9,7 @@ snipe = SnipeIT()
 tio = TenableIO()
 logger = logging_utils.get_logger(logger_name='snipe_it_asset_sync')
 
+wanted_custom_fields = ['OS','ip','software','aws_ami_id', 'aws_ami_id', 'aws_vpc_id', 'mac_address', 'sources']
 
 def force_list_to_str(val):
     '''For some reason tenable will use lists for values that 
@@ -20,7 +21,7 @@ def force_list_to_str(val):
 def tio_assets():
     logger.info('Pulling all assets with details')
     try:
-        return [tio.assets.details(i['id']) for i in tio.assets.list()]
+        return [i for i in tio.exports.list()]
     except:
         logger.exception('TIO API fail')
 
@@ -45,14 +46,26 @@ def format_asset(asset):
     ''' The SnipeIT API uses custom fields to enrich data like OS'''
     try:
         ec2_id = force_list_to_str(asset.get('aws_ec2_instance_id'))    
-        name = force_list_to_str(asset.get('hostname'))
+        name = force_list_to_str(asset.get('hostnames'))
         os = force_list_to_str(asset.get('operating_system'))
+        software = asset.get('installed_software')
+        ip = force_list_to_str(asset.get('ipv4s'))   
+        aws_ami_id = force_list_to_str(asset.get('aws_ami_id'))
+        aws_vpc_id = force_list_to_str(asset.get('aws_vpc_id'))
+        mac_address = force_list_to_str(asset.get('mac_address'))
+        sources = [i['name'] for i in asset.get('sources')]
         snipe_asset_id = is_known_asset(asset)
         data = {
             'asset_tag': ec2_id,
             'model_id': snipeIT_lookup['model_id'],
             'name' : name,
-            snipeIT_lookup['os_id'] : os
+            snipeIT_lookup['OS'] : os
+            snipeIT_lookup['software'] : software,
+            snipeIT_lookup['ip'] : ip,
+            snipeIT_lookup['aws_ami_id'] : aws_ami_id,
+            snipeIT_lookup['aws_vpc_id'] : aws_vpc_id,
+            snipeIT_lookup['mac_address'] : mac_address,
+            snipeIT_lookup['sources'] : sources
             }
         if snipe_asset_id:
             data['id'] = snipe_asset_id
@@ -75,18 +88,18 @@ def is_known_asset(asset):
             logger.info('Found existing Snipe_Asset')
             return asset['id']
     logger.info('New SnipeIT Asset')
-    
+   
 def build_snipeIT_lookup():
     global snipeIT_lookup
     try:
         status_id = lookup_snipe_it_name(function='status_labels', name='Ready to Deploy')['id']
-        model_id = lookup_snipe_it_name(function='models', name='AWS EC2')['id']
-        os_id = lookup_snipe_it_name(function='fields', name='OS')['db_column_name']
+        model_id = lookup_snipe_it_name(function='models', name='AWS EC2')['id']        
         assets = [{k:v for k,v in i.items() if k in ['id','asset_tag']} for i in snipe.assets.list()]
         snipeIT_lookup = {'status_id':status_id,
-            'model_id': model_id,
-             'os_id': os_id,
+            'model_id': model_id,             
               'assets': assets }
+        for key in wanted:
+            snipeIT_lookup[key] = lookup_snipe_it_name(function='fields', name=key)['db_column_name']
         return True
     except:
         logger.exception('Failed building lookup')
