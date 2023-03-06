@@ -59,14 +59,14 @@ def format_asset(asset):
             'asset_tag': ec2_id,
             'model_id': snipeIT_lookup['model_id'],
             'name' : name,
-            snipeIT_lookup['OS'] : os
+            snipeIT_lookup['OS'] : os,
             snipeIT_lookup['software'] : software,
             snipeIT_lookup['ip'] : ip,
             snipeIT_lookup['aws_ami_id'] : aws_ami_id,
             snipeIT_lookup['aws_vpc_id'] : aws_vpc_id,
             snipeIT_lookup['mac_address'] : mac_address,
             snipeIT_lookup['sources'] : sources
-            }
+            }       
         if snipe_asset_id:
             data['id'] = snipe_asset_id
         else:
