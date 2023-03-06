@@ -21,7 +21,7 @@ def force_list_to_str(val):
 def tio_assets():
     logger.info('Pulling all assets with details')
     try:
-        return [i for i in tio.exports.list()]
+        return [i for i in tio.exports.assets()]
     except:
         logger.exception('TIO API fail')
 
@@ -50,9 +50,9 @@ def format_asset(asset):
         os = force_list_to_str(asset.get('operating_system'))
         software = asset.get('installed_software')
         ip = force_list_to_str(asset.get('ipv4s'))   
-        aws_ami_id = force_list_to_str(asset.get('aws_ami_id'))
+        aws_ami_id = force_list_to_str(asset.get('aws_ec2_instance_ami_id'))
         aws_vpc_id = force_list_to_str(asset.get('aws_vpc_id'))
-        mac_address = force_list_to_str(asset.get('mac_address'))
+        mac_address = force_list_to_str(asset.get('mac_addresses'))
         sources = [i['name'] for i in asset.get('sources')]
         snipe_asset_id = is_known_asset(asset)
         data = {
@@ -98,7 +98,7 @@ def build_snipeIT_lookup():
         snipeIT_lookup = {'status_id':status_id,
             'model_id': model_id,             
               'assets': assets }
-        for key in wanted:
+        for key in wanted_custom_fields:
             snipeIT_lookup[key] = lookup_snipe_it_name(function='fields', name=key)['db_column_name']
         return True
     except:
